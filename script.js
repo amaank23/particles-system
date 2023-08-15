@@ -11,10 +11,12 @@ gradient.addColorStop(1, 'blue')
 
 ctx.fillStyle = gradient
 
+ctx.strokeStyle = '#fff';
+
 class Particle {
   constructor(effect) {
     this.effect = effect;
-    this.radius = Math.random() * 10 + 5;
+    this.radius = Math.random() * 5 + 2;
     this.x = this.radius + Math.random() * (this.effect.width - this.radius * 2);
     this.y = this.radius + Math.random() * (this.effect.height - this.radius * 2);
     this.vx = Math.random() * 1 - 0.5
@@ -24,7 +26,7 @@ class Particle {
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     context.fill();
-    context.stroke()
+    // context.stroke()
   }
   update(){
     this.x += this.vx;
@@ -53,6 +55,7 @@ class Effect {
     }
   }
   handleParticles(context) {
+    effect.connectParticles(context)
     this.particles.forEach((particle) => {
       particle.draw(context);
       particle.update()
@@ -68,11 +71,14 @@ class Effect {
         const distance = Math.sqrt(dx * dx + dy * dy)
 
         if(distance < maxDistance){
+          context.save()
+          const opacity = 1 - (distance/maxDistance)
+          context.globalAlpha = opacity
           context.beginPath()
           context.moveTo(this.particles[i].x, this.particles[i].y)
           context.lineTo(this.particles[j].x, this.particles[j].y)
-          context.strokeStyle = '#fff';
           context.stroke()
+          context.restore()
         }
       }
     }
@@ -85,7 +91,6 @@ const effect = new Effect(canvas);
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   effect.handleParticles(ctx);
-  effect.connectParticles(ctx)
   window.requestAnimationFrame(animate)
 }
 animate()
